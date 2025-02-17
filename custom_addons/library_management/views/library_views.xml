@@ -1,0 +1,17 @@
+<odoo>
+    <!-- Definición de la acción para los autores -->
+    <record id="action_library_author" model="ir.actions.act_window">
+        <field name="name">Authors</field>
+        <field name="res_model">library.author</field>
+        <field name="view_mode">tree,form</field>
+        <field name="target">current</field>
+    </record>
+
+    <!-- Menú para los autores -->
+    <menuitem id="menu_library_root" name="Library" sequence="1"/>
+
+    <!-- Menú para acceder a los libros -->
+    <menuitem id="menu_library_books" name="Books" parent="menu_library_root" action="library_management.action_library_book"/>
+    <!-- Menú para acceder a los autores -->
+    <menuitem id="menu_library_authors" name="Authors" parent="menu_library_root" action="library_management.action_library_author"/>
+</odoo>
