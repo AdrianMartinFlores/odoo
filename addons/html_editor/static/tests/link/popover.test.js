@@ -191,12 +191,12 @@ describe("Incorrect URL should be corrected", () => {
             '<p>this is a <a href="mailto:test@test.com">li[]nk</a></p>'
         );
     });
-    test("when a link's URL is an phonenumber, the link's URL should start with tel://:", async () => {
+    test("when a link's URL is an phonenumber, the link's URL should start with tel:", async () => {
         const { el } = await setupEditor("<p>this is a <a>li[]nk</a></p>");
 
         await contains(".o-we-linkpopover input.o_we_href_input_link").edit("+1234567890");
         expect(cleanLinkArtifacts(getContent(el))).toBe(
-            '<p>this is a <a href="tel://+1234567890">li[]nk</a></p>'
+            '<p>this is a <a href="tel:+1234567890">li[]nk</a></p>'
         );
     });
 });
@@ -208,7 +208,7 @@ describe("Link creation", () => {
             await insertText(editor, "http://google.co.in");
             await insertText(editor, " ");
             expect(cleanLinkArtifacts(getContent(el))).toBe(
-                '<p><a href="http://google.co.in">http://google.co.in</a> []</p>'
+                '<p><a href="http://google.co.in">http://google.co.in</a>&nbsp;[]</p>'
             );
         });
         test("typing invalid URL + space should not convert to link", async () => {
@@ -272,6 +272,17 @@ describe("Link creation", () => {
 
             await contains(".o-we-linkpopover input.o_we_href_input_link").fill("#");
             expect(cleanLinkArtifacts(getContent(el))).toBe('<p><a href="#">#[]</a></p>');
+        });
+        test("Should be able to insert button on empty p", async () => {
+            const { editor, el } = await setupEditor("<p>[]</p>");
+            await insertText(editor, "/button");
+            await animationFrame();
+            await click(".o-we-command-name:first");
+
+            await contains(".o-we-linkpopover input.o_we_href_input_link").fill("#");
+            expect(cleanLinkArtifacts(getContent(el))).toBe(
+                '<p><a class="btn btn-primary" href="#">#[]</a></p>'
+            );
         });
         test("should insert a link and preserve spacing", async () => {
             const { editor, el } = await setupEditor("<p>a []&nbsp;&nbsp;b</p>");

@@ -76,6 +76,7 @@ export const getOrderChanges = (order, skipped = false, orderPreparationCategori
                 note: note,
                 pos_categ_id: product.pos_categ_ids[0]?.id ?? 0,
                 pos_categ_sequence: product.pos_categ_ids[0]?.sequence ?? 0,
+                display_name: product.display_name,
             };
 
             if (quantityDiff && orderline.skip_change === skipped) {
@@ -122,6 +123,7 @@ export const getOrderChanges = (order, skipped = false, orderPreparationCategori
                     product_id: lineResume["product_id"],
                     name: lineResume["name"],
                     basic_name: lineResume["basic_name"],
+                    display_name: lineResume["display_name"],
                     isCombo: lineResume["isCombo"],
                     note: lineResume["note"],
                     attribute_value_ids: lineResume["attribute_value_ids"],

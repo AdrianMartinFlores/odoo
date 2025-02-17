@@ -1,3 +1,5 @@
+/* global posmodel */
+
 import * as BillScreen from "@pos_restaurant/../tests/tours/utils/bill_screen_util";
 import * as PaymentScreen from "@point_of_sale/../tests/tours/utils/payment_screen_util";
 import * as Dialog from "@point_of_sale/../tests/tours/utils/dialog_util";
@@ -327,6 +329,7 @@ registry.category("web_tour.tours").add("PoSPaymentSyncTour1", {
             ProductScreen.isShown(),
             ProductScreen.clickOrderButton(),
             ProductScreen.orderlinesHaveNoChange(),
+            Chrome.clickPlanButton(),
         ].flat(),
 });
 
@@ -348,6 +351,7 @@ registry.category("web_tour.tours").add("PoSPaymentSyncTour2", {
             ProductScreen.isShown(),
             ProductScreen.clickOrderButton(),
             ProductScreen.orderlinesHaveNoChange(),
+            Chrome.clickPlanButton(),
         ].flat(),
 });
 
@@ -368,5 +372,45 @@ registry.category("web_tour.tours").add("PoSPaymentSyncTour3", {
             ProductScreen.isShown(),
             ProductScreen.clickOrderButton(),
             ProductScreen.orderlinesHaveNoChange(),
+            Chrome.clickPlanButton(),
+        ].flat(),
+});
+
+registry.category("web_tour.tours").add("PreparationPrinterContent", {
+    steps: () =>
+        [
+            Chrome.startPoS(),
+            Dialog.confirm("Open Register"),
+            FloorScreen.clickTable("5"),
+            ProductScreen.clickDisplayedProduct("Product Test"),
+            Dialog.confirm("Add"),
+            ProductScreen.totalAmountIs("10"),
+            {
+                content: "Check if order preparation contains always Variant",
+                trigger: "body",
+                run: async () => {
+                    const order = posmodel.get_order();
+                    const data = posmodel.getOrderChanges();
+                    const changes = Object.values(data.orderlines);
+                    const printed = await posmodel.getRenderedReceipt(order, "New", changes);
+
+                    if (!printed.innerHTML.includes("Product Test (Value 1)")) {
+                        throw new Error("Product Test (Value 1) not found in printed receipt");
+                    }
+                },
+            },
+        ].flat(),
+});
+
+registry.category("web_tour.tours").add("MultiPreparationPrinter", {
+    checkDelay: 50,
+    steps: () =>
+        [
+            Chrome.startPoS(),
+            Dialog.confirm("Open Register"),
+            FloorScreen.clickTable("5"),
+            ProductScreen.clickDisplayedProduct("Product 1"),
+            ProductScreen.clickOrderButton(),
+            Dialog.bodyIs("Failed in printing Detailed Receipt changes of the order"),
         ].flat(),
 });

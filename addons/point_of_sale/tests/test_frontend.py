@@ -720,7 +720,7 @@ class TestUi(TestPointOfSaleHttpCommon):
         self.env['product.product'].create({
             'name': 'Product Test',
             'available_in_pos': True,
-            'list_price': 1.98,
+            'list_price': 1.96,
             'taxes_id': False,
         })
 
@@ -1504,15 +1504,20 @@ class TestUi(TestPointOfSaleHttpCommon):
     def test_product_categories_order(self):
         """ Verify that the order of categories doesnt change in the frontend """
         self.env['pos.category'].search([]).write({'sequence': 100})
-        self.env['pos.category'].create({
+        catgA = self.env['pos.category'].create({
             'name': 'AAA',
             'parent_id': False,
             'sequence': 1,
         })
-        self.env['pos.category'].create({
+        catgB = self.env['pos.category'].create({
             'name': 'AAC',
             'parent_id': False,
             'sequence': 3,
+        })
+        self.env['pos.category'].create({
+            'name': 'AAD',
+            'parent_id': False,
+            'sequence': 4,
         })
         parentA = self.env['pos.category'].create({
             'name': 'AAB',
@@ -1523,7 +1528,7 @@ class TestUi(TestPointOfSaleHttpCommon):
             'name': 'AAX',
             'parent_id': parentA.id,
         })
-        self.env['pos.category'].create({
+        catgC = self.env['pos.category'].create({
             'name': 'AAY',
             'parent_id': parentB.id,
         })
@@ -1531,7 +1536,7 @@ class TestUi(TestPointOfSaleHttpCommon):
         # It's presence is checked during the tour to make sure app doesn't crash.
         self.env['product.product'].create({
             'name': 'Product in AAB and AAX',
-            'pos_categ_ids': [(6, 0, [parentA.id, parentB.id])],
+            'pos_categ_ids': [(6, 0, [parentA.id, parentB.id, catgA.id, catgB.id, catgC.id])],
             'available_in_pos': True,
         })
         self.main_pos_config.with_user(self.pos_admin).open_ui()
@@ -1552,6 +1557,23 @@ class TestUi(TestPointOfSaleHttpCommon):
         )
         self.main_pos_config.with_user(self.pos_user).open_ui()
         self.start_tour("/pos/ui?config_id=%d" % self.main_pos_config.id, "AutofillCashCount", login="pos_user")
+
+    def test_product_search_2(self):
+        self.env['product.product'].create({
+            'name': 'Test chair 1',
+            'available_in_pos': True,
+        })
+        self.env['product.product'].create({
+            'name': 'Test CHAIR 2',
+            'available_in_pos': True,
+        })
+        self.env['product.product'].create({
+            'name': 'Test sofa',
+            'available_in_pos': True,
+            "default_code": "CHAIR_01",
+        })
+        self.main_pos_config.open_ui()
+        self.start_tour(f"/pos/ui?config_id={self.main_pos_config.id}", 'SearchProducts', login="pos_user")
 
     def test_lot(self):
         self.product1 = self.env['product.product'].create({
